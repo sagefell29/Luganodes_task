@@ -98,7 +98,7 @@ const loginUser = async (req, res) => {
         const authToken = jwt.sign(data, KEY)
         res.json({
             success: true,
-            message: 'Login Successfully',
+            message: 'Login Successful.',
             token: authToken,
         })
     } catch (error) {
@@ -112,7 +112,7 @@ const getUser = async (req, res) => {
         const id = req.user.user_id
         const user = await User.findOne({ id }).select('-pass')
         if (!user) {
-            return res.json({ success: false, message: 'No User found' })
+            return res.json({ success: false, message: 'No User found.' })
         }
         // const iv_new = Buffer.from(user.iv, 'hex')
         const decipher = crypto.createDecipheriv(
@@ -120,9 +120,9 @@ const getUser = async (req, res) => {
             Buffer.from(FINAL_KEY),
             user.iv
         )
-        const web3_id_new = decrypt(user.web3_id, user.iv)
+        const web3_id_new = await decrypt(user.web3_id, user.iv)
         user.web3_id = web3_id_new
-        res.json({ success: true, message: 'User details found', data: user })
+        res.json({ success: true, message: 'User details found.', data: user })
     } catch (error) {
         console.log(error.message)
         res.json({ success: false, message: 'Internal server error occurred.' })
