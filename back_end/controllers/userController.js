@@ -22,7 +22,9 @@ const createUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10)
         const secPass = await bcrypt.hash(pass, salt)
         const iv = crypto.randomBytes(16)
-        // const ivBase64 = iv.toString('base64')
+        console.log(iv)
+        const ivHex = iv.toString('hex')
+        console.log(ivHex)
         const cypher = crypto.createCipheriv(algo, Buffer.from(FINAL_KEY), iv)
         const initial_web3_id = cypher.update(web3_id, 'utf8', 'hex')
         const encrypted_web3_id = initial_web3_id+cypher.final('hex')
@@ -61,8 +63,8 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: 'Password does not match.' })
         }
         const data = {
-            User: {
-                User_id: User._id,
+            user: {
+                user_id: User._id,
             },
         }
         const authToken = jwt.sign(data, KEY)
@@ -79,12 +81,17 @@ const loginUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
-        const id = req.User.User_id
-        const user = await User.findOne({ _id: id }).select('-pass')
+        const id = req.user.user_id
+        const user = await User.findOne({ id }).select('-pass')
         if (!user) {
             return res.json({ success: false, message: 'No User found' })
         }
-        res.json({ success: true, message: 'User details found', data: User })
+        // const iv_new = Buffer.from(user.iv, 'hex')
+        const decipher = crypto.createDecipheriv(algo, Buffer.from(FINAL_KEY), user.iv)
+        const ini_web3_id = decipher.update(user.web3_id, 'hex', 'utf8')
+        const final_web3_id = ini_web3_id + decipher.final('utf8')
+        user.web3_id = final_web3_id
+        res.json({ success: true, message: 'User details found', data: user })
     } catch (error) {
         console.log(error.message)
         res.json({ success: false, message: 'Internal server error occurred.' })

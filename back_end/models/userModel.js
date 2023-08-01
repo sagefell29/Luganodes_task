@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema(
         pass: { type: String, required: true },
         email: { type: String, required: true },
         web3_id: { type: String, required: true },
-        iv: { type: String, required: true },
+        iv: { type: Buffer, required: true },
     },
     { timestamps: true }
 )
