@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ChakraProvider } from '@chakra-ui/react'
+import Dashboard from './pages/Dashboard';
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
     {
         path: "/register",
         element: <Register />
+    },
+    {
+        path: "/dashboard",
+        element: <Dashboard />
     }
 ]);
 const root = ReactDOM.createRoot(document.getElementById('root'));

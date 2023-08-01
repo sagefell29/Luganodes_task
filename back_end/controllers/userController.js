@@ -42,8 +42,8 @@ const hash = async (data) => {
 
 const createUser = async (req, res) => {
     try {
-        const { name, email, pass, web3_id } = req.body
-        const alreadyExist = await User.findOne({ name: name, email: email })
+        const { name, email, pass } = req.body
+        const alreadyExist = await User.findOne({ email: email })
         if (alreadyExist) {
             return res.json({
                 success: false,
@@ -51,14 +51,14 @@ const createUser = async (req, res) => {
             })
         }
         const secPass = await hash(pass)
-        const result = await encrypt(web3_id)
+        // const result = await encrypt(web3_id)
         // console.log(res)
         const user = await User.create({
             name: name,
             email: email,
             pass: secPass,
-            iv: result.iv,
-            web3_id: result.encryptedData,
+            // iv: result.iv,
+            // web3_id: result.encryptedData,
         })
         if (!user) {
             return res.json({
@@ -92,7 +92,7 @@ const loginUser = async (req, res) => {
         }
         const data = {
             user: {
-                user_id: User._id,
+                user_id: user._id,
             },
         }
         const authToken = jwt.sign(data, KEY)
@@ -110,18 +110,18 @@ const loginUser = async (req, res) => {
 const getUser = async (req, res) => {
     try {
         const id = req.user.user_id
-        const user = await User.findOne({ id }).select('-pass')
+        const user = await User.findOne({ _id:id }).select('-pass')
         if (!user) {
             return res.json({ success: false, message: 'No User found.' })
         }
         // const iv_new = Buffer.from(user.iv, 'hex')
-        const decipher = crypto.createDecipheriv(
-            algo,
-            Buffer.from(FINAL_KEY),
-            user.iv
-        )
-        const web3_id_new = await decrypt(user.web3_id, user.iv)
-        user.web3_id = web3_id_new
+        // const decipher = crypto.createDecipheriv(
+        //     algo,
+        //     Buffer.from(FINAL_KEY),
+        //     user.iv
+        // )
+        // const web3_id_new = await decrypt(user.web3_id, user.iv)
+        // user.web3_id = web3_id_new
         res.json({ success: true, message: 'User details found.', data: user })
     } catch (error) {
         console.log(error.message)
