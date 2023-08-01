@@ -1,7 +1,7 @@
-import express from "express"
-import cors from "cors"
-import connectToDatabase from "./database/connection.js"
-import testRoutes from "./routes/testRoutes.js"
+const express = require('express')
+const cors = require('cors')
+const connectToDatabase = require('./database/connection')
+
 connectToDatabase()
 const app = express()
 const port = process.env.PORT || 5000
@@ -12,8 +12,10 @@ app.get('/', (req, res) => {
     res.send('Working Fine')
 })
 
-app.use('/test', testRoutes)
+app.use('/user', require('./routes/userRoutes'))
 
 app.listen(port, () => {
-    console.log(`App listening at PORT:${port} and live at http://localhost:${port}`)
+    console.log(
+        `App listening at PORT:${port} and live at http://localhost:${port}`
+    )
 })
