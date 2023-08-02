@@ -48,7 +48,7 @@ const createMetaMask = async (req, res) => {
 
 const changeMetaMask = async (req, res) => {
     try {
-        const { web3_id, name, pass, email } = req.body
+        const { web3_id, name, email, pass } = req.body
         const user = await User.findOne({
             web3_id: web3_id,
         })
@@ -64,7 +64,7 @@ const changeMetaMask = async (req, res) => {
                 web3_id: web3_id,
             },
             {
-                $set: { name: name, pass: secPass, email: email },
+                $set: { name: name, email: email, pass: secPass },
             }
         )
         const check = await User.findOne({

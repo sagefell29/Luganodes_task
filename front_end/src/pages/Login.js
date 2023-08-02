@@ -53,6 +53,7 @@ export default function Login() {
           duration: 5000,
           isClosable: true,
         });
+        sessionStorage.setItem("type","login");
         sessionStorage.setItem("userData", JSON.stringify(response.data));
         navigate("/dashboard");
       } else {
@@ -93,8 +94,10 @@ export default function Login() {
             duration: 5000,
             isClosable: true,
           });
+          sessionStorage.setItem("type","metamask");
           sessionStorage.setItem("userData", JSON.stringify(response.data));
-        navigate("/dashboard");
+          console.log(response)
+          navigate("/dashboard");
         } else {
           toast({
             //   title: "Account created.",
