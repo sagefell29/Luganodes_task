@@ -55,7 +55,6 @@ export default function Login() {
         navigate("/dashboard");
       } else {
         toast({
-          
           description: response.data.message,
           status: "error",
           duration: 5000,

@@ -25,7 +25,8 @@ import Navbar from "../components/Navbar";
 import MetaMaskIcon from "../components/MetaMaskIcon";
 import { Link } from "react-router-dom";
 import { googleLogout, useGoogleLogin } from "@react-oauth/google";
-const register_ui = process.env.REACT_APP_SERVER_ENDPOINT + "/add";
+const register_uri = process.env.REACT_APP_SERVER_ENDPOINT + "/add";
+const metamsk_uri = process.env.REACT_APP_SERVER_ENDPOINT + "/addMetamask";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +41,7 @@ export default function Register() {
       const lastName = document.getElementById("lastName").value;
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const response = await axios.post(register_ui, {
+      const response = await axios.post(register_uri, {
         name: `${firstName} ${lastName}`,
         email: email,
         pass: password,
@@ -84,9 +85,10 @@ export default function Register() {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-      console.log(accounts);
+      // console.log(accounts);
       setWalletAddress(accounts[0]);
-      console.log(walletAddress);
+      // console.log(walletAddress);
+      const response = await axios.post()
     } else {
       alert("Please Install MetaMask!!");
     }

@@ -2,33 +2,7 @@ require('dotenv').config()
 const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const crypto = require('crypto')
-const algo = 'aes-256-cbc'
 const KEY = process.env.SECRET_KEY
-const FINAL_KEY = crypto.createHash('sha256').update(KEY).digest().slice(0, 32)
-
-const encrypt = async (data) => {
-    try {
-        const iv = await crypto.randomBytes(16)
-        const cypher = await crypto.createCipheriv(
-            algo,
-            Buffer.from(FINAL_KEY),
-            iv
-        )
-        const ini = await cypher.update(data, 'utf8', 'hex')
-        const final = ini + cypher.final('hex')
-        return ({ encryptedData: final, iv: iv })
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-const decrypt = async (enData, iv) => {
-    const decipher = await crypto.createDecipheriv(algo, Buffer.from(FINAL_KEY), iv)
-    const ini = await decipher.update(enData, 'hex', 'utf8')
-    const final = ini + decipher.final('utf8')
-    return final
-}
 
 const hash = async (data) => {
     try {
@@ -73,6 +47,7 @@ const createUser = async (req, res) => {
     }
 }
 
+
 const loginUser = async (req, res) => {
     try {
         const { email, pass } = req.body
@@ -95,7 +70,7 @@ const loginUser = async (req, res) => {
                 user_id: user._id,
             },
         }
-        const authToken = jwt.sign(data, KEY)
+        const authToken = jwt.sign(data, KEY, {expiresIn: '1h'})
         res.json({
             success: true,
             message: 'Login Successful.',

@@ -2,11 +2,11 @@ const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema(
     {
-        name: { type: String, required: true },
-        pass: { type: String, required: true },
-        email: { type: String, required: true },
+        name: { type: String },
+        pass: { type: String },
+        email: { type: String },
         web3_id: { type: String },
-        iv: { type: Buffer },
+        // iv: { type: Buffer },
     },
     { timestamps: true }
 )
