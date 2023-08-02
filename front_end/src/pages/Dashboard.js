@@ -29,24 +29,63 @@ const Dashboard = () => {
   const [newPassword, setNewPassword] = useState("");
   const [web3_id, setWeb3_id] = useState("");
   const type = sessionStorage.getItem("type");
+  const ini_data = sessionStorage.getItem("userData");
+  const token = JSON.parse(ini_data)?.token;
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (type === "login") {
-      const result = axios.post(update_uri, {
-        name: name,
-        pass: password,
-        email: email,
-        web3_id: web3_id
-      });
+      const result = await axios.post(
+        update_uri,
+        {
+          headers: {
+            "auth-token": token,
+          },
+          name: name,
+          pass: password,
+          email: email,
+          web3_id: web3_id,
+        },
+        {
+          headers: {
+            "auth-token": token,
+          },
+        }
+      );
       if (result) {
-        
+        toast({
+          description: "Successfully updated row.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } else if (type === "metamask") {
+      const result = await axios.post(
+        update_MM,
+        {
+          name: name,
+          pass: newPassword,
+          email: email,
+          web3_id: web3_id,
+        },
+        {
+          headers: {
+            "auth-token": token,
+          },
+        }
+      );
+      if (result) {
+        toast({
+          description: "Successfully updated row.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     }
   };
 
   const callData = async () => {
-    const ini_data = sessionStorage.getItem("userData");
-    const token = JSON.parse(ini_data)?.token;
     console.log(token);
     if (token) {
       try {
@@ -136,9 +175,12 @@ const Dashboard = () => {
               <>
                 {" "}
                 <Text>Password</Text>
-                <Input value={newPassword} onChange={(e) => {
-                setNewPassword(e.target.value);
-              }}/>
+                <Input
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                  }}
+                />
               </>
             )}
             <Text>Meta Mask Address</Text>
