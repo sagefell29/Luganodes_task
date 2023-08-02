@@ -71,15 +71,11 @@ const Dashboard = () => {
           <Heading fontSize={"xl"} mb={4}>
             Dashboard
           </Heading>
-          {user ? (
-            <Box>
-              <Text>Name: {user.data.data.name}</Text>
-              <Text>Email: {user.data.data.email}</Text>
-              {/* <Text>Web3 ID: {user.web3_id}</Text> */}
-            </Box>
-          ) : (
-            <Text>No user data available</Text>
-          )}
+          {/* <Box>
+            <Text>Name: {user.data.data.name}</Text>)
+            <Text>Email: {user.data.data.email}</Text>
+            <Text>Web3 ID: {user.web3_id}</Text>
+          </Box> */}
           <Stack mt={3} alignItems={"center"}>
             <Link to={"/register"}>
               <Button variant="outline">Registration Page</Button>

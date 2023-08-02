@@ -26,9 +26,11 @@ import MetaMaskIcon from "../components/MetaMaskIcon";
 import { Link } from "react-router-dom";
 import axios from "axios";
 const login_uri = process.env.REACT_APP_SERVER_ENDPOINT + "/login";
+const login_mm = process.env.REACT_APP_SERVER_ENDPOINT + "/loginMM";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [walletAddress, setWalletAddress] = useState();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -72,6 +74,58 @@ export default function Login() {
       });
     }
   };
+
+  const handleMetamask = async () => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setWalletAddress(accounts[0]);
+        const response = await axios.post(login_mm, {
+          web3_id: accounts[0],
+        });
+        if (response.data.success) {
+          toast({
+            //   title: "Account created.",
+            description: "Logged in Successfully.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+          sessionStorage.setItem("userData", JSON.stringify(response.data));
+        navigate("/dashboard");
+        } else {
+          toast({
+            //   title: "Account created.",
+            description: response.data.message,
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        toast({
+          //   title: "Account created.",
+          description: "Some error occurred.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } else {
+      toast({
+        //   title: "Account created.",
+        description:
+          "MetaMask not detected. Please install the MetaMask extension.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -137,6 +191,7 @@ export default function Login() {
                   w="full"
                   variant={"outline"}
                   leftIcon={<MetaMaskIcon />}
+                  onClick={handleMetamask}
                 >
                   MetaMask
                 </Button>

@@ -87,10 +87,10 @@ const changeMetaMask = async (req, res) => {
 
 const loginMetaMask = async (req, res) => {
     try {
-        const { curr_web3_id } = req.body
+        const { web3_id } = req.body
         // const enc_id = await encryption(curr_web3_id, KEY)
         const user = await User.findOne({
-            web3_id: curr_web3_id,
+            web3_id: web3_id,
         })
         if (user) {
             const data = {

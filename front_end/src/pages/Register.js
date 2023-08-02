@@ -25,8 +25,9 @@ import Navbar from "../components/Navbar";
 import MetaMaskIcon from "../components/MetaMaskIcon";
 import { Link } from "react-router-dom";
 import { googleLogout, useGoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
 const register_uri = process.env.REACT_APP_SERVER_ENDPOINT + "/add";
-const metamsk_uri = process.env.REACT_APP_SERVER_ENDPOINT + "/addMetamask";
+const metamask_uri = process.env.REACT_APP_SERVER_ENDPOINT + "/addMM";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -80,19 +81,57 @@ export default function Register() {
     onSuccess: (codeResponse) => setUser(codeResponse),
     onError: (error) => console.log("Login Failed:", error),
   });
-  const connectWallet = async () => {
+
+  const handleMetamask = async () => {
     if (window.ethereum) {
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      // console.log(accounts);
-      setWalletAddress(accounts[0]);
-      // console.log(walletAddress);
-      const response = await axios.post()
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setWalletAddress(accounts[0]);
+        console.log(walletAddress)
+        const response = await axios.post(metamask_uri, {
+          web3_id: accounts[0],
+        });
+        if (response.data.success) {
+          toast({
+            //   title: "Account created.",
+            description: "Successfully created account.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            //   title: "Account created.",
+            description: "Could not create Account.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        toast({
+          //   title: "Account created.",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } else {
-      alert("Please Install MetaMask!!");
+      toast({
+        //   title: "Account created.",
+        description:
+          "MetaMask not detected. Please install the MetaMask extension.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
+
   useEffect(() => {
     if (user) {
       axios
@@ -198,7 +237,7 @@ export default function Register() {
                   w="full"
                   variant={"outline"}
                   leftIcon={<MetaMaskIcon />}
-                  onClick={connectWallet}
+                  onClick={handleMetamask}
                 >
                   MetaMask
                 </Button>
