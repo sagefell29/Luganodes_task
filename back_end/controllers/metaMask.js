@@ -2,10 +2,10 @@ require('dotenv').config()
 const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const crypto = require('crypto')
-const algo = 'aes-256-cbc'
+// const crypto = require('crypto')
 const KEY = process.env.SECRET_KEY
-const FINAL_KEY = crypto.createHash('sha256').update(KEY).digest().slice(0, 32)
+const encryption = require('../scripts/encryption')
+const decryption = require('../scripts/decryption')
 
 const hash = async (data) => {
     try {
@@ -20,9 +20,18 @@ const hash = async (data) => {
 const createMetaMask = async (req, res) => {
     try {
         const { web3_id } = req.body
-        const result = await hash(web3_id)
+        // const result = await encryption(web3_id, KEY)
+        const check = await User.findOne({
+            web3_id: web3_id,
+        })
+        if (check) {
+            return res.json({
+                success: false,
+                message: 'Current Web3_ID already exists.',
+            })
+        }
         const user = await User.create({
-            web3_id: result,
+            web3_id: web3_id,
         })
         if (!user) {
             return res.json({
@@ -39,9 +48,9 @@ const createMetaMask = async (req, res) => {
 
 const changeMetaMask = async (req, res) => {
     try {
-        const { hash_web3_id, name, pass } = req.body
+        const { web3_id, name, pass, email } = req.body
         const user = await User.findOne({
-            web3_id: hash_web3_id,
+            web3_id: web3_id,
         })
         if (!user) {
             return res.json({
@@ -49,19 +58,19 @@ const changeMetaMask = async (req, res) => {
                 message: 'User not found.',
             })
         }
-        const secPass = hash(pass)
-        await user.updateOne(
+        const secPass = await hash(pass)
+        await User.updateOne(
             {
-                web3_id: hash_web3_id,
+                web3_id: web3_id,
             },
             {
-                $set: { name: name, pass: secPass },
+                $set: { name: name, pass: secPass, email: email },
             }
         )
-        const check = user.findOne({
+        const check = await User.findOne({
             name: name,
             pass: secPass,
-            web3_id: hash_web3_id,
+            web3_id: web3_id,
         })
         if (check) {
             return res.json({
@@ -79,29 +88,27 @@ const changeMetaMask = async (req, res) => {
 const loginMetaMask = async (req, res) => {
     try {
         const { curr_web3_id } = req.body
-        const users = await User.find({})
-
-        let matchedUser = null
-        for (const user of users) {
-            const match_id = await bcrypt.compare(curr_web3_id, user.web3_id)
-            if (!match_id) {
-                return res.json({
-                    success: false,
-                    message: 'No matching user found.',
-                })
-            } else {
-                const data = {
-                    user: {
-                        user_id: user._id,
-                    },
-                }
-                const authToken = jwt.sign(data, KEY)
-                res.json({
-                    success: true,
-                    message: 'Logged in Successfully',
-                    token: authToken,
-                })
+        // const enc_id = await encryption(curr_web3_id, KEY)
+        const user = await User.findOne({
+            web3_id: curr_web3_id,
+        })
+        if (user) {
+            const data = {
+                user: {
+                    user_id: user._id,
+                },
             }
+            const authToken = await jwt.sign(data, KEY)
+            return res.json({
+                success: true,
+                message: 'Logged in Successfully',
+                token: authToken,
+            })
+        } else {
+            return res.json({
+                success: false,
+                message: 'No matching Web_ID found.',
+            })
         }
     } catch (error) {
         console.log(error.message)
@@ -116,8 +123,8 @@ const getMetaMask = async (req, res) => {
         if (!user) {
             return res.json({ success: false, message: 'No User found.' })
         }
-        const dec = decrypt(user.web3_id, user.iv)
-        user.web3_id = dec
+        // const dec = await decryption(user.web3_id, KEY)
+        // user.web3_id = dec
         res.json({ success: true, message: 'User details found.', data: user })
     } catch (error) {
         console.log(error.message)

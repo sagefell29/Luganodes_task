@@ -2,6 +2,8 @@ require('dotenv').config()
 const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const encryption = require('../scripts/encryption')
+const decryption = require('../scripts/decryption')
 const KEY = process.env.SECRET_KEY
 
 const hash = async (data) => {
@@ -47,6 +49,44 @@ const createUser = async (req, res) => {
     }
 }
 
+const changeDetails = async (req, res) => {
+    try {
+        const { name, email, web3_id, pass } = req.body
+        const user = await User.findOne({ email: email })
+        if (!user) {
+            return res.json({
+                success: false,
+                message: 'User not found.',
+            })
+        }
+        const secPass = await hash(pass)
+        // const sec_web3_id = await encryption(web3_id, KEY)
+        await User.updateOne(
+            {
+                email: email,
+            },
+            {
+                $set: { name: name, web3_id: web3_id, pass: secPass },
+            }
+        )
+        const check = await User.findOne({
+            name: name,
+            pass: secPass,
+            web3_id: web3_id,
+            email: email
+        })
+        if (check) {
+            return res.json({
+                success: true,
+                message: 'Row updated successfully.',
+            })
+        }
+        return res.json({ success: false, message: 'Failed to update row.' })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: 'Internal server error occurred.' })
+    }
+}
 
 const loginUser = async (req, res) => {
     try {
@@ -70,7 +110,7 @@ const loginUser = async (req, res) => {
                 user_id: user._id,
             },
         }
-        const authToken = jwt.sign(data, KEY, {expiresIn: '1h'})
+        const authToken = jwt.sign(data, KEY, { expiresIn: '1h' })
         res.json({
             success: true,
             message: 'Login Successful.',
@@ -85,22 +125,14 @@ const loginUser = async (req, res) => {
 const getUser = async (req, res) => {
     try {
         const id = req.user.user_id
-        const user = await User.findOne({ _id:id }).select('-pass')
+        const user = await User.findOne({ _id: id }).select('-pass')
         if (!user) {
             return res.json({ success: false, message: 'No User found.' })
         }
-        // const iv_new = Buffer.from(user.iv, 'hex')
-        // const decipher = crypto.createDecipheriv(
-        //     algo,
-        //     Buffer.from(FINAL_KEY),
-        //     user.iv
-        // )
-        // const web3_id_new = await decrypt(user.web3_id, user.iv)
-        // user.web3_id = web3_id_new
         res.json({ success: true, message: 'User details found.', data: user })
     } catch (error) {
         console.log(error.message)
         res.json({ success: false, message: 'Internal server error occurred.' })
     }
 }
-module.exports = { createUser, loginUser, getUser }
+module.exports = { createUser, loginUser, getUser, changeDetails }
