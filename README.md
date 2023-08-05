@@ -30,7 +30,10 @@
   <ol>
     <li><a href="#-about-the-project">About The Project</a>
       <ul>
+<<<<<<< HEAD
         <li><a href="#-features">Features</a></li>
+=======
+>>>>>>> cbf2a0af81d7066529b8314bbf6102caef0ba97a
         <li><a href="#-tech-stack">Tech Stack</a></li>
       </ul>
     </li>
@@ -42,8 +45,11 @@
       </ul>
     </li>
     <li><a href="#-contributing">Contributing</a></li>
+<<<<<<< HEAD
     <li><a href="#-license">License</a></li>
     <li><a href="#-acknowledgements">Acknowledgements</a></li>
+=======
+>>>>>>> cbf2a0af81d7066529b8314bbf6102caef0ba97a
   </ol>
 </details>
 
