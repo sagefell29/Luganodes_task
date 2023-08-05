@@ -54,7 +54,7 @@ const Dashboard = () => {
       if (result) {
         toast({
           description: "Successfully updated row.",
-          status: "error",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -77,7 +77,7 @@ const Dashboard = () => {
       if (result) {
         toast({
           description: "Successfully updated row.",
-          status: "error",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
